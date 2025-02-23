@@ -2,27 +2,18 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Chat com LM Studio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat com LM Studio</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Tela de Setup: Inserir IP do LM Studio -->
-  <div id="setupScreen">
-    <div class="container">
-      <h2>Informe o IP do LM Studio</h2>
-      <input type="text" id="ipInput" placeholder="Ex: 192.168.1.9:1234">
-      <button id="connectBtn">Conectar</button>
-    </div>
-  </div>
-
   <!-- Tela de Chat -->
-  <div id="chatScreen">
+  <div id="chatScreen" class="container">
     <div id="chatHeader">
       <h1>Chat com LM Studio</h1>
       <div id="connectionStatus">
-        <div id="connectionIcon"></div>
-        <div id="connectionText">desconectado</div>
+        <div id="connectionIcon" style="width: 10px; height: 10px; background-color: red; border-radius: 50%;"></div>
+        <div id="connectionText">Desconectado</div>
       </div>
     </div>
     <div id="chatLog"></div>
