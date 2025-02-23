@@ -1,77 +1,137 @@
-/* style.css */
-body {
-  font-family: Arial, sans-serif;
+/* Reset de margem e padding */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+/* Estilos gerais */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f4f4f4;
+  padding: 10px;
 }
+
+/* Contêiner do chat */
 .container {
-  text-align: center;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  max-width: 90%;
-}
-#chatScreen {
+  width: 100%;
+  max-width: 600px;
+  height: 90vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  max-width: 400px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
-input, button {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
+
+/* Cabeçalho do chat */
+#chatHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1em;
+  background-color: #007bff;
+  color: white;
+  font-size: 1.2em;
+}
+
+/* Indicador de conexão */
+#connectionStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#connectionIcon {
+  width: 12px;
+  height: 12px;
+  background-color: red;
+  border-radius: 50%;
+}
+
+/* Área do chat */
+#chatLog {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1em;
+  background: #f9f9f9;
+}
+
+/* Mensagens */
+.message {
+  margin-bottom: 1em;
+  padding: 0.5em;
+  border-radius: 5px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  word-wrap: break-word;
+}
+
+.sender {
+  font-weight: bold;
+  display: block;
+}
+
+.message p {
+  margin: 0.3em 0;
+}
+
+/* Rodapé do chat */
+#chatFooter {
+  display: flex;
+  padding: 0.5em;
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+  gap: 0.5em;
+}
+
+#prompt {
+  flex: 1;
+  padding: 0.8em;
+  font-size: 1em;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-button {
+
+#sendBtn {
+  padding: 0.8em;
+  font-size: 1em;
   background-color: #007bff;
   color: white;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
 }
-button:hover {
+
+#sendBtn:hover {
   background-color: #0056b3;
 }
-#chatHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 10px;
-  background: #007bff;
-  color: white;
-  border-radius: 5px;
-}
-#chatLog {
-  flex-grow: 1;
-  width: 100%;
-  height: 300px;
-  overflow-y: auto;
-  padding: 10px;
-  background: white;
-  border-radius: 5px;
-}
-#chatFooter {
-  display: flex;
-  width: 100%;
-}
-#prompt {
-  flex-grow: 1;
-}
+
+/* Ajustes para telas pequenas */
 @media (max-width: 600px) {
-  body {
+  #chatHeader {
+    font-size: 1em;
+    text-align: center;
     flex-direction: column;
-    justify-content: flex-start;
+    padding: 0.8em;
   }
-  .container {
-    max-width: 100%;
+
+  #chatFooter {
+    flex-direction: column;
+  }
+
+  #prompt {
+    width: 100%;
+  }
+
+  #sendBtn {
+    width: 100%;
   }
 }
