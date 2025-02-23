@@ -1,0 +1,140 @@
+/* style.css */
+
+/* Layout geral */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+  }
+  
+  /* Container centralizado */
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1em;
+  }
+  
+  /* Tela de Setup */
+  #setupScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  #setupScreen input {
+    padding: 0.5em;
+    font-size: 1em;
+    margin-bottom: 1em;
+    width: 80%;
+    max-width: 300px;
+  }
+  #setupScreen button {
+    padding: 0.5em 1em;
+    font-size: 1em;
+    cursor: pointer;
+  }
+  
+  /* Tela de Chat */
+  #chatScreen {
+    display: none; /* Oculta até que o IP seja definido */
+    height: 100vh;
+    box-sizing: border-box;
+    flex-direction: column;
+  }
+  
+  /* Header do Chat */
+  #chatHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1em;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  }
+  #chatHeader h1 {
+    margin: 0;
+    font-size: 1.2em;
+  }
+  
+  /* Status de Conexão */
+  #connectionStatus {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.9em;
+  }
+  #connectionIcon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: red;
+    margin-bottom: 0.2em;
+  }
+  #connectionText {
+    font-size: 0.8em;
+  }
+  
+  /* Área do Chat */
+  #chatLog {
+    flex: 1;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background: #fff;
+    padding: 1em;
+    height: calc(100vh - 200px);
+    overflow-y: scroll;
+  }
+  
+  /* Mensagens */
+  .message {
+    margin-bottom: 1em;
+    line-height: 1.4;
+    word-wrap: break-word;
+  }
+  .sender {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.2em;
+  }
+  .message p {
+    margin: 0.5em 0;
+  }
+  
+  /* Footer do Chat */
+  #chatFooter {
+    display: flex;
+    padding: 0.5em;
+    background-color: #fff;
+  }
+  #prompt {
+    flex: 1;
+    padding: 0.5em;
+    font-size: 1em;
+    margin-right: 0.5em;
+  }
+  #sendBtn {
+    padding: 0.5em 1em;
+    font-size: 1em;
+    cursor: pointer;
+  }
+  
+  /* Responsividade para telas pequenas */
+  @media (max-width: 600px) {
+    #chatHeader h1 {
+      font-size: 1em;
+    }
+    #chatFooter {
+      flex-direction: column;
+    }
+    #prompt {
+      width: 100%;
+      margin: 0 0 0.5em 0;
+    }
+    #sendBtn {
+      width: 100%;
+    }
+  }
+  

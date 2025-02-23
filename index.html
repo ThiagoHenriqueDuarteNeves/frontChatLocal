@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat com LM Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Tela de Setup: Inserir IP do LM Studio -->
+  <div id="setupScreen">
+    <div class="container">
+      <h2>Informe o IP do LM Studio</h2>
+      <input type="text" id="ipInput" placeholder="Ex: 192.168.1.9:1234">
+      <button id="connectBtn">Conectar</button>
+    </div>
+  </div>
+
+  <!-- Tela de Chat -->
+  <div id="chatScreen">
+    <div id="chatHeader">
+      <h1>Chat com LM Studio</h1>
+      <div id="connectionStatus">
+        <div id="connectionIcon"></div>
+        <div id="connectionText">desconectado</div>
+      </div>
+    </div>
+    <div id="chatLog"></div>
+    <div id="chatFooter">
+      <input type="text" id="prompt" placeholder="Digite sua mensagem...">
+      <button id="sendBtn">Enviar</button>
+    </div>
+  </div>
+
+  <!-- Carrega o módulo principal -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
