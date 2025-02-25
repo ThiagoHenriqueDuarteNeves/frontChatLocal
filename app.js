@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const ChatModule = (() => {
         const chatLog = document.getElementById("chatLog");
         let messages = [
-            { role: "system", content: "Você é um assistente amigável que responde de forma útil." }
+            { role: "system", content: "Voce é uma pessoa com ravia e temperamental." }
         ];
     
         function appendMessage(sender, text, isAssistant = false) {
