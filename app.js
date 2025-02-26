@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const avatarDiv = document.createElement("div");
         avatarDiv.classList.add("avatar");
-        avatarDiv.textContent = isAssistant ? "🤖" : "👤";
+        avatarDiv.textContent = isAssistant ? "👽" : "👤";
 
         const textContainer = document.createElement("div");
         textContainer.classList.add("text");
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
         senderElem.textContent = sender + ": ";
 
         const textElem = document.createElement("span");
-        textElem.innerHTML = text;
+        textElem.textContent = text; // Exibe o texto inicial ("Pensando...")
 
         textContainer.appendChild(senderElem);
         textContainer.appendChild(textElem);
@@ -33,7 +33,21 @@ document.addEventListener("DOMContentLoaded", function () {
         chatLog.appendChild(messageDiv);
         chatLog.scrollTop = chatLog.scrollHeight;
 
-        return messageDiv; // 🔥 Retorna o elemento para ser atualizado depois 🔥
+        return textElem; //Retorna o elemento onde o texto será escrito
+    }
+
+    function typeTextEffect(element, text, speed = 10) {
+        let i = 0;
+        element.textContent = ""; // Limpa o "Pensando..." antes de começar a digitação
+
+        function type() {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            }
+        }
+        type();
     }
 
     async function sendMessage() {
@@ -42,23 +56,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         appendMessage("Você", message);
         promptInput.value = "";
-
-        // ❌ Desativa o input e o botão enquanto processa a resposta
         promptInput.disabled = true;
         sendBtn.disabled = true;
 
-        // Adiciona a mensagem temporária do bot
-        const thinkingMessage = appendMessage("LM Studio", "Pensando...", true);
-
-        // Criando um timeout de erro caso o servidor demore mais de 60 segundos
-        const timeout = setTimeout(() => {
-            thinkingMessage.querySelector(".text").textContent = "Ops, ocorreu um erro. Poderia me mandar mensagem novamente?";
-
-            // ✅ Reativa o input e o botão após o erro
-            promptInput.disabled = false;
-            sendBtn.disabled = false;
-        }, 60000); // 60 segundos
-
+        // Exibe "Pensando..." antes da resposta
+        const botMessageElem = appendMessage("LM Studio", "Pensando...", true);
         try {
             const response = await fetch("https://5357-2804-d41-c571-5c00-8d30-79ff-7a7e-e2c8.ngrok-free.app/api/v0/chat/completions", {
                 method: "POST",
@@ -66,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 body: JSON.stringify({
                     model: "granite-3.0-2b-instruct",
                     messages: [
-                        { role: "system", content: "Você é um assistente que sempre responde em português do Brasil." }, // 🔥 Garante que o bot responde em PT-BR
+                        { role: "system", content: "Você é um assistente que sempre responde em português do Brasil." },
                         { role: "user", content: message }
                     ],
                     temperature: 0.7,
@@ -77,35 +79,28 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             const data = await response.json();
-            console.log("Resposta do servidor:", data); // 🔍 Debug: veja a resposta no console
+            console.log("Resposta do servidor:", data);
 
-            // Se a resposta chegar a tempo, cancelamos o timeout de erro
-            clearTimeout(timeout);
-
-            // Atualiza a mensagem do bot com a resposta real
             if (data.choices && data.choices.length > 0 && data.choices[0].message) {
-                thinkingMessage.querySelector(".text").textContent = data.choices[0].message.content;
+                typeTextEffect(botMessageElem, data.choices[0].message.content);
             } else {
-                thinkingMessage.querySelector(".text").textContent = "(Sem resposta)";
+                botMessageElem.textContent = "(Sem resposta)";
             }
 
         } catch (error) {
             console.error("Erro ao buscar resposta:", error);
-            clearTimeout(timeout); // Cancela o timeout se houver um erro antes dos 60s
-            thinkingMessage.querySelector(".text").textContent = "Ops, ocorreu um erro. Poderia me mandar mensagem novamente?";
+            botMessageElem.textContent = "Ops, ocorreu um erro. Poderia me mandar mensagem novamente?";
         }
 
-        // Reativa o input e o botão após receber a resposta ou erro
         promptInput.disabled = false;
         sendBtn.disabled = false;
     }
 
     sendBtn.addEventListener("click", sendMessage);
 
-    // Permitir envio com a tecla Enter
     promptInput.addEventListener("keypress", function (event) {
         if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault(); // Evita quebra de linha
+            event.preventDefault();
             sendMessage();
         }
     });

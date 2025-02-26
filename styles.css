@@ -97,16 +97,20 @@ body {
 
 /* Avatar */
 .avatar {
-  width: 38px;
-  height: 38px;
+  width: 38px;  /* Define uma largura fixa */
+  height: 38px; /* Define uma altura fixa */
+  min-width: 38px; /* Impede que o avatar diminua */
+  min-height: 38px; /* Impede que o avatar diminua */
   border-radius: 50%;
-  background-color: #19C37D;
+  background-color: #19c37c6c;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 22px;
   color: white;
+  flex-shrink: 0; /* Impede que o avatar seja redimensionado */
 }
+
 
 /* Texto da mensagem */
 .text {
