@@ -32,6 +32,8 @@ document.addEventListener("DOMContentLoaded", function () {
         messageDiv.appendChild(textContainer);
         chatLog.appendChild(messageDiv);
         chatLog.scrollTop = chatLog.scrollHeight;
+
+        return messageDiv; // 🔥 Retorna o elemento para ser atualizado depois 🔥
     }
 
     async function sendMessage() {
@@ -63,7 +65,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "granite-3.0-2b-instruct",
-                    messages: [{ role: "user", content: message }],
+                    messages: [
+                        { role: "system", content: "Você é um assistente que sempre responde em português do Brasil." }, // 🔥 Garante que o bot responde em PT-BR
+                        { role: "user", content: message }
+                    ],
                     temperature: 0.7,
                     max_tokens: -1,
                     stream: false,
@@ -72,14 +77,20 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             const data = await response.json();
+            console.log("Resposta do servidor:", data); // 🔍 Debug: veja a resposta no console
 
             // Se a resposta chegar a tempo, cancelamos o timeout de erro
             clearTimeout(timeout);
 
             // Atualiza a mensagem do bot com a resposta real
-            thinkingMessage.querySelector(".text").textContent = data.choices[0]?.message?.content || "(Sem resposta)";
+            if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+                thinkingMessage.querySelector(".text").textContent = data.choices[0].message.content;
+            } else {
+                thinkingMessage.querySelector(".text").textContent = "(Sem resposta)";
+            }
 
         } catch (error) {
+            console.error("Erro ao buscar resposta:", error);
             clearTimeout(timeout); // Cancela o timeout se houver um erro antes dos 60s
             thinkingMessage.querySelector(".text").textContent = "Ops, ocorreu um erro. Poderia me mandar mensagem novamente?";
         }
@@ -90,4 +101,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     sendBtn.addEventListener("click", sendMessage);
+
+    // Permitir envio com a tecla Enter
+    promptInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault(); // Evita quebra de linha
+            sendMessage();
+        }
+    });
 });
