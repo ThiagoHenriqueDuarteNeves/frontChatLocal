@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
         messageDiv.appendChild(textContainer);
         chatLog.appendChild(messageDiv);
         chatLog.scrollTop = chatLog.scrollHeight;
+<<<<<<< HEAD
     
         return textElem; //Retorna o elemento onde o texto será atualizado
     }
@@ -46,6 +47,10 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
         type();
+=======
+
+        return messageDiv; // 🔥 Retorna o elemento para ser atualizado depois 🔥
+>>>>>>> 096dfc740bba85de43b8ac1978c3608751f60cce
     }
 
     async function sendMessage() {
@@ -74,7 +79,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 body: JSON.stringify({
                     model: "granite-3.0-2b-instruct",
                     messages: [
+<<<<<<< HEAD
                         { role: "system", content: "Você é um assistente que sempre responde em português do Brasil." },
+=======
+                        { role: "system", content: "Você é um assistente que sempre responde em português do Brasil." }, // 🔥 Garante que o bot responde em PT-BR
+>>>>>>> 096dfc740bba85de43b8ac1978c3608751f60cce
                         { role: "user", content: message }
                     ],
                     temperature: 0.7,
@@ -85,7 +94,11 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             const data = await response.json();
+<<<<<<< HEAD
             console.log("Resposta do servidor:", data);
+=======
+            console.log("Resposta do servidor:", data); // 🔍 Debug: veja a resposta no console
+>>>>>>> 096dfc740bba85de43b8ac1978c3608751f60cce
 
             clearTimeout(timeout);
 
@@ -95,12 +108,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 typeTextEffect(botMessageElem, data.choices[0].message.content); // Efeito de digitação
             } else {
                 botMessageElem.textContent = "(Sem resposta)";
+=======
+            // Atualiza a mensagem do bot com a resposta real
+            if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+                thinkingMessage.querySelector(".text").textContent = data.choices[0].message.content;
+            } else {
+                thinkingMessage.querySelector(".text").textContent = "(Sem resposta)";
+>>>>>>> 096dfc740bba85de43b8ac1978c3608751f60cce
             }
 
         } catch (error) {
             console.error("Erro ao buscar resposta:", error);
+<<<<<<< HEAD
             clearTimeout(timeout);
             botMessageElem.textContent = "Ops, ocorreu um erro. Poderia me mandar mensagem novamente?";
+=======
+            clearTimeout(timeout); // Cancela o timeout se houver um erro antes dos 60s
+            thinkingMessage.querySelector(".text").textContent = "Ops, ocorreu um erro. Poderia me mandar mensagem novamente?";
+>>>>>>> 096dfc740bba85de43b8ac1978c3608751f60cce
         }
 
         promptInput.disabled = false;
@@ -109,9 +134,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     sendBtn.addEventListener("click", sendMessage);
 
+<<<<<<< HEAD
     promptInput.addEventListener("keypress", function (event) {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
+=======
+    // Permitir envio com a tecla Enter
+    promptInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault(); // Evita quebra de linha
+>>>>>>> 096dfc740bba85de43b8ac1978c3608751f60cce
             sendMessage();
         }
     });
