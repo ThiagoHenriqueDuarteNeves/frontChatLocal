@@ -89,6 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             clearTimeout(timeout);
 
+<<<<<<< HEAD
             if (data.choices && data.choices.length > 0 && data.choices[0].message) {
                 botMessageElem.textContent = ""; // Limpa "Pensando..."
                 typeTextEffect(botMessageElem, data.choices[0].message.content); // Efeito de digitação
