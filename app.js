@@ -1,166 +1,93 @@
-// app.js
-// Utilizamos o padrão de módulos (IIFE) para melhorar a organização do código
-
 document.addEventListener("DOMContentLoaded", function () {
-    // Módulo de Conexão: Gerencia a verificação do status do servidor LM Studio
-    const ConnectionModule = (() => {
-        const connectionIcon = document.getElementById("connectionIcon");
-        const connectionText = document.getElementById("connectionText");
-        const serverURL = "https://5357-2804-d41-c571-5c00-8d30-79ff-7a7e-e2c8.ngrok-free.app";
-        let checkConnectionInterval = null;
-    
-        async function checkConnection() {
-            try {
-                const response = await fetch(`${serverURL}/api/v0/models`);
-                if (response.ok) {
-                    connectionIcon.style.backgroundColor = "green";
-                    connectionText.textContent = "Conectado";
-                } else {
-                    throw new Error("Resposta do servidor não foi OK");
-                }
-            } catch (error) {
-                connectionIcon.style.backgroundColor = "red";
-                connectionText.textContent = "Desconectado";
-                console.error("Erro ao conectar:", error);
-            }
-        }
-    
-        function startChecking() {
-            checkConnection();
-            checkConnectionInterval = setInterval(checkConnection, 5000);
-        }
-    
-        function getServerURL() {
-            return serverURL;
-        }
-    
-        return { startChecking, getServerURL };
-    })();
-    
-    // Módulo de Formatação: Trata a formatação do texto do assistente
-    const FormattingModule = (() => {
-        function removeThinkTags(text) {
-            return text.replace(/<think>.*?<\/think>/gs, "").trim(); // Remove tudo dentro de <think>...</think>
-        }
-  
-        function removeThinkLines(text) {
-            return text.replace(/^Think:.*$/gm, "").trim();
-        }
-    
-        function formatAsParagraphs(text) {
-            const paragraphs = text.split(/\n+/).map(p => p.trim()).filter(Boolean);
-            return paragraphs.map(par => `<p>${par}</p>`).join("");
-        }
-    
-        function formatAssistantText(text) {
-            let formatted = removeThinkTags(text);  // Remove <think>...</think>
-            formatted = removeThinkLines(formatted);  // Remove "Think:..."
-            formatted = formatAsParagraphs(formatted);
-            return formatted;
-        }
-    
-        return { formatAssistantText };
-    })();
-    
-    // Módulo de Chat: Gerencia o envio de mensagens e a exibição do chat
-    const ChatModule = (() => {
-        const chatLog = document.getElementById("chatLog");
-        let messages = [
-            { role: "system", content: "Você é um assistente amigável que responde de forma útil." }
-        ];
-    
-        function appendMessage(sender, text, isAssistant = false) {
-            const messageDiv = document.createElement("div");
-            messageDiv.classList.add("message");
-    
-            const senderElem = document.createElement("span");
-            senderElem.classList.add("sender");
-            senderElem.textContent = sender + ":";
-  
-            // Aplica formatação e remove conteúdo entre <think>...</think>
-            const cleanText = isAssistant ? FormattingModule.formatAssistantText(text) : text;
-    
-            const textElem = document.createElement("span");
-            textElem.innerHTML = cleanText;
-    
-            messageDiv.appendChild(senderElem);
-            messageDiv.appendChild(textElem);
-            chatLog.appendChild(messageDiv);
-            chatLog.scrollTop = chatLog.scrollHeight;
-        }
-    
-        async function sendMessage(message) {
-            console.log("Enviando mensagem:", message);
-            messages.push({ role: "user", content: message });
-            appendMessage("Você", message);
-    
-            const payload = {
-                model: "granite-3.0-2b-instruct",
-                messages: messages,
-                temperature: 0.7,
-                max_tokens: -1,
-                stream: false,
-            };
-    
-            try {
-                const response = await fetch(`${ConnectionModule.getServerURL()}/api/v0/chat/completions`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-    
-                if (!response.ok) {
-                    throw new Error("Erro na requisição: " + response.status);
-                }
-                const data = await response.json();
-                console.log("Resposta da API:", data);
-                const reply = data.choices[0]?.message?.content || "(Sem resposta)";
-                
-                // Aplica a filtragem antes de exibir
-                appendMessage("LM Studio", reply, true);
-                messages.push({ role: "assistant", content: reply });
-            } catch (error) {
-                console.error("Erro ao enviar mensagem:", error);
-                appendMessage("Erro", error.message);
-            }
-        }
-    
-        return { sendMessage };
-    })();
-    
-    // Módulo de Inicialização da Aplicação: Gerencia eventos
-    const AppModule = (() => {
-        const chatScreen = document.getElementById("chatScreen");
-        const promptInput = document.getElementById("prompt");
-        const sendBtn = document.getElementById("sendBtn");
-    
-        if (!sendBtn || !promptInput) {
-            console.error("Elemento não encontrado! Verifique os IDs no HTML.");
-            return;
-        }
-    
-        function init() {
-            sendBtn.addEventListener("click", () => {
-                const text = promptInput.value.trim();
-                if (text) {
-                    ChatModule.sendMessage(text);
-                    promptInput.value = "";
-                }
+    const chatLog = document.getElementById("chatLog");
+    const promptInput = document.getElementById("prompt");
+    const sendBtn = document.getElementById("sendBtn");
+
+    // Habilita o botão de enviar quando o usuário digita algo
+    promptInput.addEventListener("input", function () {
+        sendBtn.disabled = promptInput.value.trim() === "";
+    });
+
+    function appendMessage(sender, text, isAssistant = false) {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", isAssistant ? "bot" : "user");
+
+        const avatarDiv = document.createElement("div");
+        avatarDiv.classList.add("avatar");
+        avatarDiv.textContent = isAssistant ? "🤖" : "👤";
+
+        const textContainer = document.createElement("div");
+        textContainer.classList.add("text");
+
+        const senderElem = document.createElement("span");
+        senderElem.classList.add("sender");
+        senderElem.textContent = sender + ": ";
+
+        const textElem = document.createElement("span");
+        textElem.innerHTML = text;
+
+        textContainer.appendChild(senderElem);
+        textContainer.appendChild(textElem);
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(textContainer);
+        chatLog.appendChild(messageDiv);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const message = promptInput.value.trim();
+        if (!message) return;
+
+        appendMessage("Você", message);
+        promptInput.value = "";
+
+        // ❌ Desativa o input e o botão enquanto processa a resposta
+        promptInput.disabled = true;
+        sendBtn.disabled = true;
+
+        // Adiciona a mensagem temporária do bot
+        const thinkingMessage = appendMessage("LM Studio", "Pensando...", true);
+
+        // Criando um timeout de erro caso o servidor demore mais de 60 segundos
+        const timeout = setTimeout(() => {
+            thinkingMessage.querySelector(".text").textContent = "Ops, ocorreu um erro. Poderia me mandar mensagem novamente?";
+
+            // ✅ Reativa o input e o botão após o erro
+            promptInput.disabled = false;
+            sendBtn.disabled = false;
+        }, 60000); // 60 segundos
+
+        try {
+            const response = await fetch("https://5357-2804-d41-c571-5c00-8d30-79ff-7a7e-e2c8.ngrok-free.app/api/v0/chat/completions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    model: "granite-3.0-2b-instruct",
+                    messages: [{ role: "user", content: message }],
+                    temperature: 0.7,
+                    max_tokens: -1,
+                    stream: false,
+                    language: "pt-BR"
+                })
             });
-    
-            promptInput.addEventListener("keypress", (e) => {
-                if (e.key === "Enter") {
-                    sendBtn.click();
-                }
-            });
-    
-            ConnectionModule.startChecking();
+
+            const data = await response.json();
+
+            // Se a resposta chegar a tempo, cancelamos o timeout de erro
+            clearTimeout(timeout);
+
+            // Atualiza a mensagem do bot com a resposta real
+            thinkingMessage.querySelector(".text").textContent = data.choices[0]?.message?.content || "(Sem resposta)";
+
+        } catch (error) {
+            clearTimeout(timeout); // Cancela o timeout se houver um erro antes dos 60s
+            thinkingMessage.querySelector(".text").textContent = "Ops, ocorreu um erro. Poderia me mandar mensagem novamente?";
         }
-    
-        return { init };
-    })();
-    
-    // Inicializa a aplicação
-    AppModule.init();
-  });
-  
+
+        // Reativa o input e o botão após receber a resposta ou erro
+        promptInput.disabled = false;
+        sendBtn.disabled = false;
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+});
