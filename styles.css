@@ -1,0 +1,200 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Arial", sans-serif;
+}
+
+/* Fundo escuro do chat */
+body {
+  background-color: #343541;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Contêiner principal */
+.chat-container {
+  width: 60%;
+  max-width: 900px;
+  height: 80vh;
+  background-color: #40414F;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Área de mensagens */
+.chat-box {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #555 #40414F;
+}
+
+/* Scrollbar personalizada */
+.chat-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+  background-color: #777;
+  border-radius: 5px;
+}
+
+/* Mensagens */
+.message {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 75%;
+  padding: 12px;
+  border-radius: 10px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+/* Animação de fadeIn para mensagens */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mensagem do bot */
+.message.bot {
+  align-self: flex-start;
+  background-color: #444654;
+  color: white;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Mensagem do usuário */
+.message.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+  background-color: #0FA47F;
+  color: white;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Avatar */
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: #19C37D;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+  color: white;
+}
+
+/* Texto da mensagem */
+.text {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Nome do remetente */
+.sender {
+  font-weight: bold;
+  margin-right: 5px;
+  white-space: nowrap;
+}
+
+/* Caixa de entrada dinâmica */
+.chat-input {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background-color: #40414F;
+  border-top: 1px solid #555;
+  position: relative;
+}
+
+/* Área de texto ajustável */
+.chat-input textarea {
+  flex: 1;
+  min-height: 45px;
+  max-height: 150px;
+  resize: none;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #555;
+  color: white;
+  outline: none;
+  overflow-y: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Efeito quando o campo cresce */
+.chat-input.expanded {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Placeholder */
+.chat-input textarea::placeholder {
+  color: #bbb;
+}
+
+/* Botão de enviar */
+.chat-input button {
+  background-color: #0FA47F;
+  border: none;
+  padding: 12px 16px;
+  margin-left: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  color: white;
+  transition: background 0.3s ease, transform 0.1s ease-in-out;
+}
+
+/* Efeito ao clicar no botão */
+.chat-input button:active {
+  transform: scale(0.95);
+}
+
+/* Botão de enviar desativado */
+.chat-input button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+/* Hover do botão */
+.chat-input button:hover:not(:disabled) {
+  background-color: #19C37D;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .chat-container {
+    width: 90%;
+    height: 85vh;
+  }
+}
