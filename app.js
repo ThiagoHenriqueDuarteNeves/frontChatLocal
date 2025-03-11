@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Exibe "Pensando..." antes da resposta
         const botMessageElem = appendMessage("LM Studio", "Pensando...", true);
         try {
-            const response = await fetch("https://5417-2804-d41-c571-5c00-f8f0-7fda-a307-d9dd.ngrok-free.app/api/v0/chat/completions", {
+            const response = await fetch("https://0aeb-2804-d41-c571-5c00-f8f0-7fda-a307-d9dd.ngrok-free.app/api/v0/chat/completions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
