@@ -1,152 +1,107 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Módulo de Conexão: Gerencia a verificação do status do servidor LM Studio
-  const ConnectionModule = (() => {
-      const connectionIcon = document.getElementById("connectionIcon");
-      const connectionText = document.getElementById("connectionText");
-      const serverURL = "5417-2804-d41-c571-5c00-f8f0-7fda-a307-d9dd.ngrok-free.app";
-      let checkConnectionInterval = null;
-  
-      async function checkConnection() {
-          try {
-              const response = await fetch(`${serverURL}/api/v0/models`);
-              if (response.ok) {
-                  connectionIcon.style.backgroundColor = "green";
-                  connectionText.textContent = "Conectado";
-              } else {
-                  throw new Error("Resposta do servidor não foi OK");
-              }
-          } catch (error) {
-              connectionIcon.style.backgroundColor = "red";
-              connectionText.textContent = "Desconectado";
-              console.error("Erro ao conectar:", error);
-          }
-      }
-  
-      function startChecking() {
-          checkConnection();
-          checkConnectionInterval = setInterval(checkConnection, 5000);
-      }
-  
-      function getServerURL() {
-          return serverURL;
-      }
-  
-      return { startChecking, getServerURL };
-  })();
-  
-  // Módulo de Formatação: Trata a formatação do texto do assistente
-  const FormattingModule = (() => {
-      function removeThinkLines(text) {
-          return text.replace(/^Think:.*$/gm, "").trim();
-      }
-  
-      function formatAsParagraphs(text) {
-          const paragraphs = text.split(/\n+/).map(p => p.trim()).filter(Boolean);
-          return paragraphs.map(par => `<p>${par}</p>`).join("");
-      }
-  
-      function formatAssistantText(text) {
-          let formatted = removeThinkLines(text);
-          formatted = formatAsParagraphs(formatted);
-          return formatted;
-      }
-  
-      return { formatAssistantText };
-  })();
-  
-  // Módulo de Chat: Gerencia o envio de mensagens e a exibição do chat
-  const ChatModule = (() => {
-      const chatLog = document.getElementById("chatLog");
-      let messages = [
-          { role: "system", content: "Você é um assistente amigável que responde de forma útil." }
-      ];
-  
-      function appendMessage(sender, text, isAssistant = false) {
-          const messageDiv = document.createElement("div");
-          messageDiv.classList.add("message");
-  
-          const senderElem = document.createElement("span");
-          senderElem.classList.add("sender");
-          senderElem.textContent = sender + ":";
-  
-          const textElem = document.createElement("span");
-          textElem.innerHTML = isAssistant ? FormattingModule.formatAssistantText(text) : text;
-  
-          messageDiv.appendChild(senderElem);
-          messageDiv.appendChild(textElem);
-          chatLog.appendChild(messageDiv);
-          chatLog.scrollTop = chatLog.scrollHeight;
-      }
-  
-      async function sendMessage(message) {
-          console.log("Enviando mensagem:", message);
-          messages.push({ role: "user", content: message });
-          appendMessage("Você", message);
-  
-          const payload = {
-              model: "granite-3.0-2b-instruct",
-              messages: messages,
-              temperature: 0.7,
-              max_tokens: -1,
-              stream: false,
-          };
-  
-          try {
-              const response = await fetch(`${ConnectionModule.getServerURL()}/api/v0/chat/completions`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload)
-              });
-  
-              if (!response.ok) {
-                  throw new Error("Erro na requisição: " + response.status);
-              }
-              const data = await response.json();
-              console.log("Resposta da API:", data);
-              const reply = data.choices[0]?.message?.content || "(Sem resposta)";
-              appendMessage("LM Studio", reply, true);
-              messages.push({ role: "assistant", content: reply });
-          } catch (error) {
-              console.error("Erro ao enviar mensagem:", error);
-              appendMessage("Erro", error.message);
-          }
-      }
-  
-      return { sendMessage };
-  })();
-  
-  // Módulo de Inicialização da Aplicação: Gerencia eventos
-  const AppModule = (() => {
-      const chatScreen = document.getElementById("chatScreen");
-      const promptInput = document.getElementById("prompt");
-      const sendBtn = document.getElementById("sendBtn");
-  
-      if (!sendBtn || !promptInput) {
-          console.error("Elemento não encontrado! Verifique os IDs no HTML.");
-          return;
-      }
-  
-      function init() {
-          sendBtn.addEventListener("click", () => {
-              const text = promptInput.value.trim();
-              if (text) {
-                  ChatModule.sendMessage(text);
-                  promptInput.value = "";
-              }
-          });
-  
-          promptInput.addEventListener("keypress", (e) => {
-              if (e.key === "Enter") {
-                  sendBtn.click();
-              }
-          });
-  
-          ConnectionModule.startChecking();
-      }
-  
-      return { init };
-  })();
-  
-  // Inicializa a aplicação
-  AppModule.init();
+    const chatLog = document.getElementById("chatLog");
+    const promptInput = document.getElementById("prompt");
+    const sendBtn = document.getElementById("sendBtn");
+
+    // Habilita o botão de enviar quando o usuário digita algo
+    promptInput.addEventListener("input", function () {
+        sendBtn.disabled = promptInput.value.trim() === "";
+    });
+
+    function appendMessage(sender, text, isAssistant = false) {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", isAssistant ? "bot" : "user");
+
+        const avatarDiv = document.createElement("div");
+        avatarDiv.classList.add("avatar");
+        avatarDiv.textContent = isAssistant ? "👽" : "👤";
+
+        const textContainer = document.createElement("div");
+        textContainer.classList.add("text");
+
+        const senderElem = document.createElement("span");
+        senderElem.classList.add("sender");
+        senderElem.textContent = sender + ": ";
+
+        const textElem = document.createElement("span");
+        textElem.textContent = text; // Exibe o texto inicial ("Pensando...")
+
+        textContainer.appendChild(senderElem);
+        textContainer.appendChild(textElem);
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(textContainer);
+        chatLog.appendChild(messageDiv);
+        chatLog.scrollTop = chatLog.scrollHeight;
+
+        return textElem; //Retorna o elemento onde o texto será escrito
+    }
+
+    function typeTextEffect(element, text, speed = 10) {
+        let i = 0;
+        element.textContent = ""; // Limpa o "Pensando..." antes de começar a digitação
+
+        function type() {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            }
+        }
+        type();
+    }
+
+    async function sendMessage() {
+        const message = promptInput.value.trim();
+        if (!message) return;
+
+        appendMessage("Você", message);
+        promptInput.value = "";
+        promptInput.disabled = true;
+        sendBtn.disabled = true;
+
+        // Exibe "Pensando..." antes da resposta
+        const botMessageElem = appendMessage("LM Studio", "Pensando...", true);
+        try {
+            const response = await fetch("https://5417-2804-d41-c571-5c00-f8f0-7fda-a307-d9dd.ngrok-free.app/api/v0/chat/completions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    model: "granite-3.0-2b-instruct",
+                    messages: [
+                        { role: "system", content: "Você é um assistente que sempre responde em português do Brasil." },
+                        { role: "user", content: message }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: -1,
+                    stream: false,
+                    language: "pt-BR"
+                })
+            });
+
+            const data = await response.json();
+            console.log("Resposta do servidor:", data);
+
+            if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+                typeTextEffect(botMessageElem, data.choices[0].message.content);
+            } else {
+                botMessageElem.textContent = "(Sem resposta)";
+            }
+
+        } catch (error) {
+            console.error("Erro ao buscar resposta:", error);
+            botMessageElem.textContent = "Ops, ocorreu um erro. Poderia me mandar mensagem novamente?";
+        }
+
+        promptInput.disabled = false;
+        sendBtn.disabled = false;
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+
+    promptInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
 });
