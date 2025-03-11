@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const ConnectionModule = (() => {
       const connectionIcon = document.getElementById("connectionIcon");
       const connectionText = document.getElementById("connectionText");
-      const serverURL = "https://5357-2804-d41-c571-5c00-8d30-79ff-7a7e-e2c8.ngrok-free.app";
+      const serverURL = "https://5417-2804-d41-c571-5c00-f8f0-7fda-a307-d9dd.ngrok-free.app";
       let checkConnectionInterval = null;
   
       async function checkConnection() {
