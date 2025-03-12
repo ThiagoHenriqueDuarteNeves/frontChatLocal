@@ -69,9 +69,27 @@ document.addEventListener("DOMContentLoaded", function () {
         const botMessageElem = appendMessage("LM Studio", "Pensando...", true, true);
 
         try {
-            const responseText = await fetchResponseFromAPI(message);
-            if (responseText) {
-                typeTextEffect(botMessageElem, responseText);
+            const response = await fetch("https://5357-2804-d41-c571-5c00-8d30-79ff-7a7e-e2c8.ngrok-free.app/api/v0/chat/completions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    model: "granite-3.0-2b-instruct",
+                    messages: [
+                        { role: "system", content: "Você é um assistente que sempre responde em português do Brasil." },
+                        { role: "user", content: message }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: -1,
+                    stream: false,
+                    language: "pt-BR"
+                })
+            });
+
+            const data = await response.json();
+            console.log("Resposta do servidor:", data);
+
+            if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+                typeTextEffect(botMessageElem, data.choices[0].message.content);
             } else {
                 botMessageElem.textContent = "(Erro ao gerar resposta)";
             }
