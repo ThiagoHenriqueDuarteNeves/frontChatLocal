@@ -6,52 +6,53 @@
   font-family: "Arial", sans-serif;
 }
 
-/* Fundo escuro do chat */
+/* Corpo */
 body {
   background-color: #343541;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   height: 100vh;
+  overflow: hidden;
 }
 
-/* Contêiner principal */
+/* Contêiner do chat */
 .chat-container {
-  width: 60%;
+  width: 100%;
   max-width: 900px;
-  height: 80vh;
-  background-color: #40414F;
-  border-radius: 12px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Área de mensagens */
-.chat-box {
+/* Área do chat */
+.chat {
   flex: 1;
+  width: 100%;
+  max-width: 900px;
   padding: 15px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
   scrollbar-width: thin;
-  scrollbar-color: #555 #40414F;
+  scrollbar-color: #555 #343541;
+  padding-bottom: 80px;
 }
 
-/* Scrollbar personalizada */
-.chat-box::-webkit-scrollbar {
-  width: 6px;
+/* Scrollbar fina */
+.chat::-webkit-scrollbar {
+  width: 4px;
 }
 
-.chat-box::-webkit-scrollbar-thumb {
-  background-color: #777;
-  border-radius: 5px;
+.chat::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
 }
 
-/* Mensagens */
+/* Ajuste para mensagens longas não quebrarem o layout */
 .message {
   display: flex;
   align-items: flex-start;
@@ -60,20 +61,42 @@ body {
   padding: 12px;
   border-radius: 10px;
   word-wrap: break-word;
-  white-space: pre-wrap;
+  /* 🔹 Quebra palavras longas */
+  overflow-wrap: break-word;
+  /* 🔹 Garante a quebra em navegadores modernos */
+  white-space: normal;
+  /* 🔹 Mantém o texto ajustado */
   opacity: 0;
-  animation: fadeIn 0.3s ease-in-out forwards;
+  animation: fadeIn 0.3s ease-in-out forwards, slideUp 0.3s ease-in-out forwards;
 }
 
-/* Animação de fadeIn para mensagens */
+/* Ajuste no texto dentro da mensagem */
+.text {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+  /* 🔹 Garante que o texto respeite o limite da mensagem */
+}
+
+/* Animação de fadeIn */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
   }
 
   to {
     opacity: 1;
+  }
+}
+
+/* Animação de slide-up (movimento suave ao surgir) */
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+  }
+
+  to {
     transform: translateY(0);
   }
 }
@@ -83,62 +106,48 @@ body {
   align-self: flex-start;
   background-color: #444654;
   color: white;
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Mensagem do usuário */
+/* Ajuste para mensagens de usuário */
 .message.user {
   align-self: flex-end;
   flex-direction: row-reverse;
   background-color: #0FA47F;
   color: white;
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+  max-width: 60%;
+  /* 🔹 Garante que as mensagens não fiquem muito grandes */
 }
 
 /* Avatar */
 .avatar {
-  width: 38px;  /* Define uma largura fixa */
-  height: 38px; /* Define uma altura fixa */
-  min-width: 38px; /* Impede que o avatar diminua */
-  min-height: 38px; /* Impede que o avatar diminua */
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background-color: #19c37c6c;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 22px;
   color: white;
-  flex-shrink: 0; /* Impede que o avatar seja redimensionado */
 }
 
-
-/* Texto da mensagem */
-.text {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 12px;
-  border-radius: 10px;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-/* Nome do remetente */
-.sender {
-  font-weight: bold;
-  margin-right: 5px;
-  white-space: nowrap;
-}
-
-/* Caixa de entrada dinâmica */
+/* Caixa de entrada */
 .chat-input {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  max-width: 900px;
+  background: linear-gradient(to top, rgba(64, 65, 79, 0.98), rgba(64, 65, 79, 0.8));
+  padding: 12px;
   display: flex;
   align-items: center;
-  padding: 12px;
-  background-color: #40414F;
-  border-top: 1px solid #555;
-  position: relative;
+  border-radius: 20px;
+  box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease-in-out;
 }
 
-/* Área de texto ajustável */
+/* Input */
 .chat-input textarea {
   flex: 1;
   min-height: 45px;
@@ -146,33 +155,21 @@ body {
   resize: none;
   padding: 12px;
   border: none;
-  border-radius: 8px;
+  border-radius: 20px;
   font-size: 16px;
   background-color: #555;
   color: white;
   outline: none;
-  overflow-y: hidden;
   transition: all 0.2s ease-in-out;
 }
 
-/* Efeito quando o campo cresce */
-.chat-input.expanded {
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
-/* Placeholder */
-.chat-input textarea::placeholder {
-  color: #bbb;
-}
-
-/* Botão de enviar */
+/* Botão */
 .chat-input button {
   background-color: #0FA47F;
   border: none;
   padding: 12px 16px;
   margin-left: 10px;
-  border-radius: 8px;
+  border-radius: 20px;
   cursor: pointer;
   font-size: 18px;
   color: white;
@@ -181,24 +178,197 @@ body {
 
 /* Efeito ao clicar no botão */
 .chat-input button:active {
-  transform: scale(0.95);
+  transform: scale(0.9);
 }
 
-/* Botão de enviar desativado */
+/* Efeito ao passar o mouse no botão */
+.chat-input button:hover {
+  background-color: #19C37D;
+}
+
+/* Botão desativado */
 .chat-input button:disabled {
   background-color: #555;
   cursor: not-allowed;
 }
 
-/* Hover do botão */
-.chat-input button:hover:not(:disabled) {
-  background-color: #19C37D;
+/* Indicador de "digitando..." */
+.typing {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 5px;
+  border-radius: 50%;
+  background-color: white;
+  animation: blink 1.0s infinite ease-in-out;
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-  .chat-container {
-    width: 90%;
-    height: 85vh;
+@keyframes blink {
+  0% {
+    opacity: 0.3;
   }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.3;
+  }
+}
+
+/* Efeito de digitação do botão de envio */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.chat-input button:enabled:hover {
+  animation: pulse 0.5s ease-in-out infinite alternate;
+}
+
+/* Tela de introdução */
+.intro-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #343541;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeOut 1s ease-out 2.5s forwards;
+}
+
+/* Conteúdo da animação */
+.intro-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  opacity: 0;
+  animation: fadeIn 1.5s ease-out forwards, pulse 1.5s ease-in-out infinite alternate;
+}
+
+/* Ícone do alien */
+.alien-logo {
+  font-size: 100px;
+}
+
+/* Nome do aplicativo */
+.app-name {
+  font-size: 48px;
+  font-weight: bold;
+  color: white;
+  letter-spacing: 2px;
+}
+
+/* Animação de fade-in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animação de fade-out para esconder */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Efeito de pulsação (Alien e Nome pulsando juntos) */
+@keyframes pulse {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.1);
+  }
+}
+
+/* Header fixo no topo */
+.chat-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #2a2b32;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+/* Conteúdo do header */
+.header-content {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo no header - Alinhada à esquerda */
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 0;
+  /* Garante que fique à esquerda */
+}
+
+/* Ícone do alien */
+.header-logo .alien-logo {
+  font-size: 32px;
+}
+
+/* Nome do aplicativo */
+.header-logo .app-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  letter-spacing: 1px;
+}
+
+
+/* Ajusta o chat para não ficar sobre o header */
+.chat {
+  flex: 1;
+  width: 100%;
+  max-width: 900px;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #555 #343541;
+  padding-top: 70px;
+  /* Adiciona espaço para o header */
+  padding-bottom: 80px;
 }

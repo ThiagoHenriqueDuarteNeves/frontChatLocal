@@ -4,24 +4,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>gepetudo</title>
+  <title>Gepetudo</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-  <div class="chat-container">
-    <div class="chat-box" id="chatLog">
-      <div class="message bot">
-        <div class="avatar">👽</div>
-        <div class="text">Olá! Sou o Gepetudo, como posso te ajudar hoje?</div>
-      </div>
-    </div>
-    <div class="chat-input">
-      <textarea id="prompt" placeholder="Digite sua mensagem..." rows="1"></textarea>
-      <button id="sendBtn" disabled>➤</button>
+
+  <!-- Vinheta de introdução -->
+  <div class="intro-animation">
+    <div class="intro-content">
+      <div class="alien-logo">👽</div>
+      <div class="app-name">Gepetudo</div>
     </div>
   </div>
+
+  <!-- Header fixo -->
+  <header class="chat-header">
+    <div class="header-content">
+      <div class="header-logo">
+        <div class="alien-logo">👽</div>
+        <div class="app-name">Gepetudo</div>
+      </div>
+    </div>
+  </header>
+<br>
+  <!-- Área do chat -->
+  <div class="chat" id="chatLog"></div>
+
+  <!-- Caixa de entrada -->
+  <div class="chat-input">
+    <textarea id="prompt" placeholder="Digite sua mensagem..." rows="1"></textarea>
+    <button id="sendBtn" disabled>➤</button>
+  </div>
+
+  <script src="script.js"></script>
   <script src="app.js"></script>
+
 </body>
 
 </html>

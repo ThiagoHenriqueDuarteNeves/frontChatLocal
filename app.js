@@ -3,12 +3,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const promptInput = document.getElementById("prompt");
     const sendBtn = document.getElementById("sendBtn");
 
-    // Habilita o botão de enviar quando o usuário digita algo
+    function addWelcomeMessage() {
+        appendMessage("LM Studio", "Olá! Sou o Gepetudo, como posso te ajudar hoje?", true, false);
+    }
+
     promptInput.addEventListener("input", function () {
         sendBtn.disabled = promptInput.value.trim() === "";
     });
 
-    function appendMessage(sender, text, isAssistant = false) {
+    function appendMessage(sender, text, isAssistant = false, showTyping = true) {
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("message", isAssistant ? "bot" : "user");
 
@@ -24,7 +27,12 @@ document.addEventListener("DOMContentLoaded", function () {
         senderElem.textContent = sender + ": ";
 
         const textElem = document.createElement("span");
-        textElem.textContent = text; // Exibe o texto inicial ("Pensando...")
+
+        if (isAssistant && showTyping) {
+            textElem.innerHTML = `<span class="typing"></span><span class="typing"></span><span class="typing"></span>`;
+        } else {
+            textElem.textContent = text;
+        }
 
         textContainer.appendChild(senderElem);
         textContainer.appendChild(textElem);
@@ -33,13 +41,12 @@ document.addEventListener("DOMContentLoaded", function () {
         chatLog.appendChild(messageDiv);
         chatLog.scrollTop = chatLog.scrollHeight;
 
-        return textElem; //Retorna o elemento onde o texto será escrito
+        return textElem;
     }
 
-    function typeTextEffect(element, text, speed = 10) {
+    function typeTextEffect(element, text, speed = 30) {
         let i = 0;
-        element.textContent = ""; // Limpa o "Pensando..." antes de começar a digitação
-
+        element.textContent = "";
         function type() {
             if (i < text.length) {
                 element.textContent += text.charAt(i);
@@ -59,37 +66,17 @@ document.addEventListener("DOMContentLoaded", function () {
         promptInput.disabled = true;
         sendBtn.disabled = true;
 
-        // Exibe "Pensando..." antes da resposta
-        const botMessageElem = appendMessage("LM Studio", "Pensando...", true);
+        const botMessageElem = appendMessage("LM Studio", "Pensando...", true, true);
+
         try {
-            const response = await fetch("https://5357-2804-d41-c571-5c00-8d30-79ff-7a7e-e2c8.ngrok-free.app/api/v0/chat/completions", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "granite-3.0-2b-instruct",
-                    messages: [
-                        { role: "system", content: "Você é um assistente que sempre responde em português do Brasil." },
-                        { role: "user", content: message }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: -1,
-                    stream: false,
-                    language: "pt-BR"
-                })
-            });
-
-            const data = await response.json();
-            console.log("Resposta do servidor:", data);
-
-            if (data.choices && data.choices.length > 0 && data.choices[0].message) {
-                typeTextEffect(botMessageElem, data.choices[0].message.content);
+            const responseText = await fetchResponseFromAPI(message);
+            if (responseText) {
+                typeTextEffect(botMessageElem, responseText);
             } else {
-                botMessageElem.textContent = "(Sem resposta)";
+                botMessageElem.textContent = "(Erro ao gerar resposta)";
             }
-
         } catch (error) {
-            console.error("Erro ao buscar resposta:", error);
-            botMessageElem.textContent = "Ops, ocorreu um erro. Poderia me mandar mensagem novamente?";
+            botMessageElem.textContent = "Erro na resposta. Tente novamente.";
         }
 
         promptInput.disabled = false;
@@ -97,11 +84,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     sendBtn.addEventListener("click", sendMessage);
-
     promptInput.addEventListener("keypress", function (event) {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
             sendMessage();
         }
     });
+
+    addWelcomeMessage();
 });
