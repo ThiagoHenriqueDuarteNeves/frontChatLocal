@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const maxHistoryLength = 15;
 
     function addWelcomeMessage() {
-        appendMessage("LM Studio", "Olá! Sou o Gepetudo, como posso te ajudar hoje?", true, false);
+        appendMessage("Gepetudo", "Olá! Sou o Gepetudo, como posso te ajudar hoje?", true, false);
     }
 
     promptInput.addEventListener("input", function () {
@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
         sendBtn.disabled = true;
 
         // Exibe placeholder de "Pensando..."
-        const botMessageElem = appendMessage("LM Studio", "Pensando...", true, true);
+        const botMessageElem = appendMessage("Gepetudo", "Pensando...", true, true);
 
         try {
             const response = await fetch("https://e8b7-2804-d41-c571-5c00-d175-a3d1-93a8-67b5.ngrok-free.app/api/v0/chat/completions", {
