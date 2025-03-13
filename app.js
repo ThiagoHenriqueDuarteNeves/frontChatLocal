@@ -3,6 +3,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const promptInput = document.getElementById("prompt");
     const sendBtn = document.getElementById("sendBtn");
 
+    // Mensagem de sistema inicial
+    let messageHistory = [
+        {
+            role: "system",
+            content: "Voce é um assistente virtual que sempre fala em portugues"}
+    ];
+
+    // Define o número máximo de mensagens que serão mantidas no histórico
+    const maxHistoryLength = 15;
+
     function addWelcomeMessage() {
         appendMessage("LM Studio", "Olá! Sou o Gepetudo, como posso te ajudar hoje?", true, false);
     }
@@ -28,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const textElem = document.createElement("span");
 
+        // Caso seja mensagem do "assistente" e showTyping = true, mostra "..."
         if (isAssistant && showTyping) {
             textElem.innerHTML = `<span class="typing"></span><span class="typing"></span><span class="typing"></span>`;
         } else {
@@ -61,11 +72,20 @@ document.addEventListener("DOMContentLoaded", function () {
         const message = promptInput.value.trim();
         if (!message) return;
 
+        // Adiciona a mensagem do usuário ao chat
         appendMessage("Você", message);
+        messageHistory.push({ role: "user", content: message });
+
+        // Limita o tamanho do histórico antes de enviar à API
+        if (messageHistory.length > maxHistoryLength) {
+            messageHistory = messageHistory.slice(-maxHistoryLength);
+        }
+
         promptInput.value = "";
         promptInput.disabled = true;
         sendBtn.disabled = true;
 
+        // Exibe placeholder de "Pensando..."
         const botMessageElem = appendMessage("LM Studio", "Pensando...", true, true);
 
         try {
@@ -74,10 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "granite-3.0-2b-instruct",
-                    messages: [
-                        { role: "system", content: "Você é um assistente que sempre responde em português do Brasil." },
-                        { role: "user", content: message }
-                    ],
+                    messages: messageHistory,  // Usa o histórico limitado
                     temperature: 0.7,
                     max_tokens: -1,
                     stream: false,
@@ -89,7 +106,18 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Resposta do servidor:", data);
 
             if (data.choices && data.choices.length > 0 && data.choices[0].message) {
-                typeTextEffect(botMessageElem, data.choices[0].message.content);
+                const botResponse = data.choices[0].message.content;
+
+                // Adiciona a resposta do assistente ao histórico
+                messageHistory.push({ role: "assistant", content: botResponse });
+
+                // Limita novamente após adicionar a resposta
+                if (messageHistory.length > maxHistoryLength) {
+                    messageHistory = messageHistory.slice(-maxHistoryLength);
+                }
+
+                // Anima a digitação no elemento
+                typeTextEffect(botMessageElem, botResponse);
             } else {
                 botMessageElem.textContent = "(Erro ao gerar resposta)";
             }
@@ -97,6 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
             botMessageElem.textContent = "Erro na resposta. Tente novamente.";
         }
 
+        // Reativa o input e botão
         promptInput.disabled = false;
         sendBtn.disabled = false;
     }
@@ -109,5 +138,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Mensagem de boas-vindas
     addWelcomeMessage();
 });
