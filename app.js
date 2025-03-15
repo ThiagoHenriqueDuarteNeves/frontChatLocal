@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let messageHistory = [
         {
             role: "system",
-            content: "Voce é um assistente virtual que sempre fala em portugues"}
+            content: "Voce é amigo da Natália e esta conversando com ela. e se ela perguntar sobre o pinoquio não esqueça que você é pai dele sim!! Sempre termine uma resposta tratando pelo nome 'Natália'."}
     ];
 
     // Define o número máximo de mensagens que serão mantidas no histórico
