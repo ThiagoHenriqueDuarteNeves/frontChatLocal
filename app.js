@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const botMessageElem = appendMessage("Gepetudo", "Pensando...", true, true);
 
         try {
-            const response = await fetch("https://e8b7-2804-d41-c571-5c00-d175-a3d1-93a8-67b5.ngrok-free.app/api/v0/chat/completions", {
+            const response = await fetch("https://1476-2804-d41-c52b-6600-a89c-7b61-eeb1-af53.ngrok-free.app/api/v0/chat/completions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
