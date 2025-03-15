@@ -7,7 +7,7 @@ async function fetchResponseFromAPI(userMessage) {
     const requestBody = {
         model: "granite-3.0-2b-instruct",
         messages: [
-            { role: "system", content: "Voce é amigo da Natalia, e vai demonstrar isso." },
+            { role: "system", content: "Voce é amigo da Natalia, e será simpatico" },
             { role: "user", content: userMessage }
         ],
         temperature: 0.7,
