@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const botMessageElem = appendMessage("Gepetudo", "Pensando...", true, true);
 
         try {
-            const response = await fetch("https://zsebroxaz.localto.net/api/v0/chat/completions", {
+            const response = await fetch("https://zsebroxaz.localto.net/api/v1/chat/completions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
