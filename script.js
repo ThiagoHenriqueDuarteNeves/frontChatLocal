@@ -1,6 +1,6 @@
 async function fetchResponseFromAPI(userMessage) {
     const proxyUrl = "https://cors-anywhere.herokuapp.com/";
-    const apiUrl = "https://8dcc-177-69-1-37.ngrok-free.app/api/v0/chat/completions";
+    const apiUrl = "https://zsebroxaz.localto.net/api/v0/chat/completions";
 
     const fullUrl = proxyUrl + apiUrl;
 
