@@ -7,9 +7,9 @@ document.addEventListener("DOMContentLoaded", function () {
     let messageHistory = [
         {
             role: "system",
-            content: "Voce é um assistente virtual que sempre fala em portugues"}
+            content: "Seja um assistente virtual simpatico que fala sempre em portugues" }
     ];
-
+    
     // Define o número máximo de mensagens que serão mantidas no histórico
     const maxHistoryLength = 15;
 
@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return textElem;
     }
 
+    // Atualiza o scroll a cada caractere digitado para manter a última mensagem visível
     function typeTextEffect(element, text, speed = 30) {
         let i = 0;
         element.textContent = "";
@@ -62,6 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (i < text.length) {
                 element.textContent += text.charAt(i);
                 i++;
+                chatLog.scrollTop = chatLog.scrollHeight; // Atualiza o scroll durante a digitação
                 setTimeout(type, speed);
             }
         }
@@ -108,6 +110,9 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.choices && data.choices.length > 0 && data.choices[0].message) {
                 const botResponse = data.choices[0].message.content;
 
+                // Verifica se o conteúdo contém ``` indicando que é código
+                const botCode = botResponse.includes('```') ? botResponse : null;
+
                 // Adiciona a resposta do assistente ao histórico
                 messageHistory.push({ role: "assistant", content: botResponse });
 
@@ -116,8 +121,26 @@ document.addEventListener("DOMContentLoaded", function () {
                     messageHistory = messageHistory.slice(-maxHistoryLength);
                 }
 
-                // Anima a digitação no elemento
+                // Exibe a resposta de texto do bot com efeito de digitação
                 typeTextEffect(botMessageElem, botResponse);
+
+                // Se houver código, exibe na caixa de código
+                if (botCode) {
+                    const codeBoxContainer = document.querySelector('.code-box');
+                    if (codeBoxContainer) {
+                        const codeBox = codeBoxContainer.querySelector('code');
+                        if (codeBox) {
+                            codeBox.textContent = botCode;  // Inserindo o código na caixa de código
+                            codeBoxContainer.style.display = 'block';  // Exibe a caixa de código
+                        }
+                    }
+                } else {
+                    const codeBoxContainer = document.querySelector('.code-box');
+                    if (codeBoxContainer) {
+                        codeBoxContainer.style.display = 'none';  // Esconde a caixa de código caso não haja código
+                    }
+                }
+
             } else {
                 botMessageElem.textContent = "(Erro ao gerar resposta)";
             }
@@ -125,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
             botMessageElem.textContent = "Erro na resposta. Tente novamente.";
         }
 
-        // Reativa o input e botão
+        // Reativa o input e o botão
         promptInput.disabled = false;
         sendBtn.disabled = false;
     }
