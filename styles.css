@@ -33,13 +33,14 @@ body {
   width: 100%;
   max-width: 900px;
   padding: 15px;
-  overflow-y: auto;
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   gap: 12px;
   scrollbar-width: thin;
   scrollbar-color: #555 #343541;
   padding-bottom: 80px;
+  margin-bottom: 20px; /* Espaço extra entre a área do chat e a caixa de input */
 }
 
 /* Scrollbar fina */
@@ -51,6 +52,7 @@ body {
   background-color: #888;
   border-radius: 4px;
 }
+
 
 /* Ajuste para mensagens longas não quebrarem o layout */
 .message {
