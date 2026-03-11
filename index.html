@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Captura e Pronúncia</title>
+    <title>Captura de Voz Inteligente</title>
     <style>
         /* Estilos Minimalistas e Modernos */
         :root {
@@ -48,7 +48,32 @@
         p.subtitle {
             font-size: 0.9rem;
             color: #94a3b8;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Menu de Seleção de Intenção */
+        .action-select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            outline: none;
+            font-size: 1rem;
+            cursor: pointer;
+            appearance: none; /* Remove o visual padrão do navegador */
+            text-align: center;
+        }
+
+        .action-select:focus {
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3);
+        }
+
+        .action-select option {
+            background-color: var(--card-bg);
+            color: var(--text-color);
         }
 
         /* O Botão de Gravação */
@@ -126,8 +151,14 @@
 <body>
 
     <div class="container">
-        <h1>Análise Vocal</h1>
-        <p class="subtitle">Toque para iniciar e gravar sua pronúncia.</p>
+        <h1>Voz para Texto</h1>
+        <p class="subtitle">O que deseja fazer com este áudio?</p>
+
+        <select id="actionSelect" class="action-select">
+            <option value="traducao_ingles">Traduzir para Inglês</option>
+            <option value="transcricao_pt">Apenas Transcrever (PT-BR)</option>
+            <option value="analise_pronuncia">Avaliar Pronúncia</option>
+        </select>
 
         <button id="recordBtn" class="record-btn">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -140,13 +171,12 @@
         <div id="statusText" class="status">Aguardando...</div>
 
         <div id="feedbackBox" class="feedback-box">
-            <div class="feedback-title">Feedback da Pronúncia</div>
+            <div id="feedbackTitle" class="feedback-title">Resultado</div>
             <div id="feedbackContent">Processando sua voz...</div>
         </div>
     </div>
 
     <script>
-        // O Cérebro da Aplicação
         let mediaRecorder;
         let audioChunks = [];
         let isRecording = false;
@@ -155,6 +185,8 @@
         const statusText = document.getElementById('statusText');
         const feedbackBox = document.getElementById('feedbackBox');
         const feedbackContent = document.getElementById('feedbackContent');
+        const feedbackTitle = document.getElementById('feedbackTitle');
+        const actionSelect = document.getElementById('actionSelect');
 
         recordBtn.addEventListener('click', async () => {
             if (!isRecording) {
@@ -166,7 +198,9 @@
 
         async function startRecording() {
             try {
-                // Pede permissão para usar o microfone
+                // Desabilita o menu de seleção enquanto grava para evitar trocas acidentais
+                actionSelect.disabled = true;
+                
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
@@ -182,7 +216,6 @@
                 mediaRecorder.start();
                 isRecording = true;
                 
-                // Atualiza a Interface
                 recordBtn.classList.add('recording');
                 statusText.innerText = "Gravando... Toque para parar.";
                 feedbackBox.classList.remove('show');
@@ -190,50 +223,51 @@
             } catch (err) {
                 statusText.innerText = "Erro: Permissão de microfone negada.";
                 console.error("Erro ao acessar microfone:", err);
+                actionSelect.disabled = false;
             }
         }
 
         function stopRecording() {
             if (mediaRecorder && mediaRecorder.state !== "inactive") {
                 mediaRecorder.stop();
-                // Desliga as faixas do microfone para liberar o uso no sistema
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
             }
             isRecording = false;
             
-            // Atualiza a Interface
             recordBtn.classList.remove('recording');
             statusText.innerText = "Processando o áudio...";
         }
 
         function processAudio() {
-            // Criamos o arquivo de áudio final a partir dos fragmentos capturados
+            // Reabilita o menu de seleção
+            actionSelect.disabled = false;
+
+            // Captura qual foi a opção escolhida pelo usuário
+            const selectedActionValue = actionSelect.value;
+            const selectedActionText = actionSelect.options[actionSelect.selectedIndex].text;
+
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-            
-            // Criamos um endereço temporário para este arquivo dentro do navegador
             const audioUrl = URL.createObjectURL(audioBlob);
             
-            // Criamos um 'link' invisível para forçar o download
             const linkDownload = document.createElement('a');
             linkDownload.href = audioUrl;
             
-            // Damos um nome ao arquivo que será guardado
-            linkDownload.download = 'minha_pronuncia.webm';
+            // O nome do arquivo salvo agora contém a ação escolhida para facilitar o arquivamento!
+            const filename = `audio_${selectedActionValue}_${Date.now()}.webm`;
+            linkDownload.download = filename;
             
-            // Adicionamos o link à tela (de forma invisível), clicamos nele e depois o removemos
             document.body.appendChild(linkDownload);
             linkDownload.click();
             document.body.removeChild(linkDownload);
             
-            // Limpamos a memória do navegador para mantê-lo leve
             URL.revokeObjectURL(audioUrl);
             
-            // Atualizamos a interface para dar a confirmação visual
             statusText.innerText = "Áudio guardado com sucesso!";
             feedbackBox.classList.add('show');
             
-            // Feedback ajustado para esta etapa puramente local
-            feedbackContent.innerHTML = "Sua voz foi capturada e o arquivo foi baixado. <br><br><b>Dica:</b> Você pode ouvi-lo agora mesmo abrindo a sua pasta de downloads ou galeria de arquivos do celular.";
+            // Atualiza o quadro de feedback para mostrar que entendeu o comando
+            feedbackTitle.innerText = "Ação: " + selectedActionText;
+            feedbackContent.innerHTML = `O arquivo <b>${filename}</b> foi baixado na sua máquina.<br><br>Quando ligarmos isso a um servidor, ele receberá esse áudio acompanhado da instrução "<i>${selectedActionValue}</i>" e devolverá o texto exato aqui na tela!`;
         }
     </script>
 </body>
