@@ -1,45 +1,240 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gepetudo</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captura e Pronúncia</title>
+    <style>
+        /* Estilos Minimalistas e Modernos */
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --danger-color: #f43f5e;
+            --card-bg: #1e293b;
+        }
 
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        p.subtitle {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 2.5rem;
+        }
+
+        /* O Botão de Gravação */
+        .record-btn {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            font-size: 1rem;
+            cursor: pointer;
+            outline: none;
+            transition: transform 0.2s, background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .record-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Animação quando está gravando */
+        .recording {
+            background-color: var(--danger-color);
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(244, 63, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+        }
+
+        /* Área de Status e Feedback */
+        .status {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            height: 20px;
+            color: #cbd5e1;
+        }
+
+        .feedback-box {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border-left: 4px solid var(--accent-color);
+            text-align: left;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.5s, transform 0.5s;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feedback-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
 <body>
 
-  <!-- Vinheta de introdução -->
-  <div class="intro-animation">
-    <div class="intro-content">
-      <div class="alien-logo">👽</div>
-      <div class="app-name">Gepetudo</div>
+    <div class="container">
+        <h1>Análise Vocal</h1>
+        <p class="subtitle">Toque para iniciar e gravar sua pronúncia.</p>
+
+        <button id="recordBtn" class="record-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="22"></line>
+            </svg>
+        </button>
+
+        <div id="statusText" class="status">Aguardando...</div>
+
+        <div id="feedbackBox" class="feedback-box">
+            <div class="feedback-title">Feedback da Pronúncia</div>
+            <div id="feedbackContent">Processando sua voz...</div>
+        </div>
     </div>
-  </div>
 
-  <!-- Header fixo -->
-  <header class="chat-header">
-    <div class="header-content">
-      <div class="header-logo">
-        <div class="alien-logo">👽</div>
-        <div class="app-name">Gepetudo</div>
-      </div>
-    </div>
-  </header>
-<br>
-  <!-- Área do chat -->
-  <div class="chat" id="chatLog"></div>
+    <script>
+        // O Cérebro da Aplicação
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
 
-  <!-- Caixa de entrada -->
-  <div class="chat-input">
-    <textarea id="prompt" placeholder="Digite sua mensagem..." rows="1"></textarea>
-    <button id="sendBtn" disabled>➤</button>
-  </div>
+        const recordBtn = document.getElementById('recordBtn');
+        const statusText = document.getElementById('statusText');
+        const feedbackBox = document.getElementById('feedbackBox');
+        const feedbackContent = document.getElementById('feedbackContent');
 
-  <script src="script.js"></script>
-  <script src="app.js"></script>
+        recordBtn.addEventListener('click', async () => {
+            if (!isRecording) {
+                await startRecording();
+            } else {
+                stopRecording();
+            }
+        });
 
+        async function startRecording() {
+            try {
+                // Pede permissão para usar o microfone
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = processAudio;
+
+                mediaRecorder.start();
+                isRecording = true;
+                
+                // Atualiza a Interface
+                recordBtn.classList.add('recording');
+                statusText.innerText = "Gravando... Toque para parar.";
+                feedbackBox.classList.remove('show');
+                
+            } catch (err) {
+                statusText.innerText = "Erro: Permissão de microfone negada.";
+                console.error("Erro ao acessar microfone:", err);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                mediaRecorder.stop();
+                // Desliga as faixas do microfone para liberar o uso no sistema
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+            isRecording = false;
+            
+            // Atualiza a Interface
+            recordBtn.classList.remove('recording');
+            statusText.innerText = "Processando o áudio...";
+        }
+
+        function processAudio() {
+            // Criamos o arquivo de áudio final a partir dos fragmentos capturados
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            
+            // Criamos um endereço temporário para este arquivo dentro do navegador
+            const audioUrl = URL.createObjectURL(audioBlob);
+            
+            // Criamos um 'link' invisível para forçar o download
+            const linkDownload = document.createElement('a');
+            linkDownload.href = audioUrl;
+            
+            // Damos um nome ao arquivo que será guardado
+            linkDownload.download = 'minha_pronuncia.webm';
+            
+            // Adicionamos o link à tela (de forma invisível), clicamos nele e depois o removemos
+            document.body.appendChild(linkDownload);
+            linkDownload.click();
+            document.body.removeChild(linkDownload);
+            
+            // Limpamos a memória do navegador para mantê-lo leve
+            URL.revokeObjectURL(audioUrl);
+            
+            // Atualizamos a interface para dar a confirmação visual
+            statusText.innerText = "Áudio guardado com sucesso!";
+            feedbackBox.classList.add('show');
+            
+            // Feedback ajustado para esta etapa puramente local
+            feedbackContent.innerHTML = "Sua voz foi capturada e o arquivo foi baixado. <br><br><b>Dica:</b> Você pode ouvi-lo agora mesmo abrindo a sua pasta de downloads ou galeria de arquivos do celular.";
+        }
+    </script>
 </body>
-
 </html>
